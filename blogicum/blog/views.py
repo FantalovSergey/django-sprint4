@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
-from django.views.generic import FormView, CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db.models import Count
 
@@ -32,7 +32,7 @@ class OnlyAuthorMixin(UserPassesTestMixin):
             )
 
 
-class PostMixin(FormView):
+class PostMixin:
     model = Post
     template_name = 'blog/create.html'
 
@@ -42,7 +42,7 @@ class PostMixin(FormView):
         )
 
 
-class CommentMixin(FormView):
+class CommentMixin:
     model = Comment
     template_name = 'blog/comment.html'
 
@@ -138,7 +138,6 @@ def post_detail(request, pk):
         'form': CommentForm(),
         'comments': comments,
     }
-    print(context)
     return render(request, 'blog/detail.html', context)
 
 
