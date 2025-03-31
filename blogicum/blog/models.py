@@ -97,4 +97,3 @@ class Comment(models.Model):
     class Meta:
         ordering = ('created_at',)
         default_related_name = 'comments'
-        
