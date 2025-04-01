@@ -11,9 +11,10 @@ from django.db.models import Count
 from .models import Post, Category, Comment
 from .forms import PostForm, UserUpdateForm, CommentForm
 
-User = get_user_model()
 
 PAGINATE_BY = 10
+
+User = get_user_model()
 
 
 class OnlyAuthorMixin(UserPassesTestMixin):
@@ -24,12 +25,10 @@ class OnlyAuthorMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         if isinstance(self.get_object(), Post):
             return redirect(
-                'blog:post_detail', pk=self.get_object().id
-            )
+                'blog:post_detail', pk=self.get_object().id)
         else:
             return redirect(
-                'blog:post_detail', pk=self.get_object().post.id
-            )
+                'blog:post_detail', pk=self.get_object().post.id)
 
 
 class PostMixin:
@@ -38,8 +37,7 @@ class PostMixin:
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:profile', kwargs={'username_slug': self.request.user},
-        )
+            'blog:profile', kwargs={'username_slug': self.request.user})
 
 
 class CommentMixin:
@@ -48,8 +46,7 @@ class CommentMixin:
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:post_detail', kwargs={'pk': self.get_object().post.id},
-        )
+            'blog:post_detail', kwargs={'pk': self.get_object().post.id})
 
 
 class PostCreateView(LoginRequiredMixin, PostMixin, CreateView):
@@ -65,8 +62,7 @@ class PostUpdateView(OnlyAuthorMixin, PostMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy(
-            'blog:post_detail', kwargs={'pk': self.get_object().id},
-        )
+            'blog:post_detail', kwargs={'pk': self.get_object().id})
 
 
 class PostDeleteView(OnlyAuthorMixin, PostMixin, DeleteView):
@@ -91,15 +87,11 @@ class UserUpdateView(UpdateView):
     template_name = 'blog/user.html'
 
     def get_object(self):
-        return get_object_or_404(
-            User.objects.all(),
-            username=self.request.user,
-        )
+        return get_object_or_404(User, username=self.request.user)
 
     def form_valid(self, form):
         self.success_url = reverse_lazy(
-            'blog:profile', kwargs={'username_slug': form.instance.username},
-        )
+            'blog:profile', kwargs={'username_slug': form.instance.username})
         return super().form_valid(form)
 
 
@@ -143,11 +135,9 @@ def post_detail(request, pk):
 
 def category_posts(request, category_slug):
     category = get_object_or_404(
-        Category.objects.filter(is_published=True), slug=category_slug,
-    )
+        Category.objects.filter(is_published=True), slug=category_slug)
     paginator = Paginator(
-        get_base_queryset().filter(category__slug=category_slug), PAGINATE_BY
-    )
+        get_base_queryset().filter(category__slug=category_slug), PAGINATE_BY)
     context = {
         'category': category,
         'page_obj': paginator.get_page(request.GET.get('page')),
@@ -160,7 +150,7 @@ def profile(request, username_slug):
     if user == request.user:
         paginator = Paginator(
             Post.objects.select_related(
-                'author', 'location', 'category'
+                'author', 'location', 'category',
             ).filter(
                 author__username=username_slug
             ).annotate(
@@ -175,7 +165,7 @@ def profile(request, username_slug):
         )
     context = {
         'profile': user,
-        'page_obj': paginator.get_page(request.GET.get('page'))
+        'page_obj': paginator.get_page(request.GET.get('page')),
     }
     return render(request, 'blog/profile.html', context)
 

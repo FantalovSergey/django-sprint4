@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import Category, Location, Post
+from .models import Category, Location, Post, Comment
 
-admin.site.register([Category, Location, Post])
+admin.site.register([Category, Location, Post, Comment])
