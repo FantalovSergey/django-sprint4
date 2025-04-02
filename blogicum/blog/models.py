@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-NUMBER_OF_SYMBOLS_IN_COMMENT_TITLE = 10
+TITLE_MAX_LENGTH_ADMIN_ZONE = 30
+TITLE_MAX_LENGTH = 256
 
 User = get_user_model()
 
@@ -19,18 +20,18 @@ class BaseModel(models.Model):
 
 
 class Location(BaseModel):
-    name = models.CharField('Название места', max_length=256)
+    name = models.CharField('Название места', max_length=TITLE_MAX_LENGTH)
 
     class Meta:
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
+        return self.name[:TITLE_MAX_LENGTH_ADMIN_ZONE]
 
 
 class Category(BaseModel):
-    title = models.CharField('Заголовок', max_length=256)
+    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -45,11 +46,11 @@ class Category(BaseModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title
+        return self.title[:TITLE_MAX_LENGTH_ADMIN_ZONE]
 
 
 class Post(BaseModel):
-    title = models.CharField('Заголовок', max_length=256)
+    title = models.CharField('Заголовок', max_length=TITLE_MAX_LENGTH)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
         'Дата и время публикации',
@@ -84,7 +85,7 @@ class Post(BaseModel):
         default_related_name = 'posts'
 
     def __str__(self):
-        return self.title
+        return self.title[:TITLE_MAX_LENGTH_ADMIN_ZONE]
 
 
 class Comment(BaseModel):
@@ -107,4 +108,4 @@ class Comment(BaseModel):
         default_related_name = 'comments'
 
     def __str__(self):
-        return self.text[:NUMBER_OF_SYMBOLS_IN_COMMENT_TITLE]
+        return self.text[:TITLE_MAX_LENGTH_ADMIN_ZONE]
