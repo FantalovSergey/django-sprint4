@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, UpdateView
 
 from .models import Category, Post
@@ -25,7 +25,7 @@ class PostUpdateView(OnlyAuthorMixin, PostMixin, UpdateView):
     form_class = PostForm
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.get_object().id})
 
 
@@ -54,7 +54,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:profile',
             kwargs={'username_slug': self.get_object().username},
         )
@@ -68,8 +68,7 @@ def index(request):
 def post_detail(request, post_id):
     post = get_object_or_404(get_base_queryset(), pk=post_id)
     if not post.author == request.user:
-        post = get_object_or_404(
-            get_base_queryset(filter=True, annotate=True), pk=post_id)
+        post = get_object_or_404(get_base_queryset(filter=True), pk=post_id)
     comments = post.comments.all()
     context = {
         'post': post,
@@ -84,9 +83,7 @@ def category_posts(request, category_slug):
         Category.objects.filter(is_published=True), slug=category_slug)
     page = get_page(
         request,
-        get_base_queryset(
-            filter=True, annotate=True,
-        ).filter(category__slug=category_slug),
+        get_base_queryset(category.posts, filter=True, annotate=True),
     )
     context = {
         'category': category,
@@ -97,12 +94,8 @@ def category_posts(request, category_slug):
 
 def profile(request, username_slug):
     user = get_object_or_404(User, username=username_slug)
-    if user == request.user:
-        queryset = get_base_queryset(annotate=True).filter(
-            author__username=username_slug)
-    else:
-        queryset = get_base_queryset(filter=True, annotate=True).filter(
-            author__username=username_slug)
+    queryset = get_base_queryset(
+        user.posts, filter=user != request.user, annotate=True)
     context = {
         'profile': user,
         'page_obj': get_page(request, queryset),

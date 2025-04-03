@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse
 
 from .models import Comment, Post
 
@@ -21,7 +21,7 @@ class PostMixin:
     pk_url_kwarg = 'post_id'
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:profile',
             kwargs={'username_slug': self.request.user.username},
         )
@@ -39,5 +39,5 @@ class CommentMixin:
         )
 
     def get_success_url(self):
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.get_object().post.id})

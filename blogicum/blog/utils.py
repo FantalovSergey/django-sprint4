@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.utils import timezone
 
-from blogicum.settings import PAGINATE_BY
 from .models import Post
 
 
@@ -21,4 +21,5 @@ def get_base_queryset(manager=Post.objects, filter=False, annotate=False):
 
 
 def get_page(request, queryset):
-    return Paginator(queryset, PAGINATE_BY).get_page(request.GET.get('page'))
+    return Paginator(
+        queryset, settings.PAGINATE_BY).get_page(request.GET.get('page'))
